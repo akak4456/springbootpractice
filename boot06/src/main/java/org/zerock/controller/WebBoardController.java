@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.zerock.domain.WebBoard;
-import org.zerock.persistence.WebBoardRepository;
+import org.zerock.persistence.CustomCrudRepository;
 import org.zerock.vo.PageMaker;
 import org.zerock.vo.PageVO;
 
@@ -22,18 +22,19 @@ import lombok.extern.java.Log;
 @Log
 public class WebBoardController {
 	@Autowired
-	private WebBoardRepository repo;
+	private CustomCrudRepository repo;
+	//private WebBoardRepository repo;
 	@GetMapping("/list")
 	public void list(PageVO vo,Model model) {
 		Pageable page = vo.makePageable(0, "bno");
 		log.info("list() called...");
-		Page<WebBoard> result = repo.findAll(repo.makePredicate(vo.getType(), vo.getKeyword()),page);
+		Page<Object[]> result = repo.getCustomPage(vo.getType(),vo.getKeyword(),page);
 		
 		log.info(""+page);
 		log.info(""+result);
 		
 		log.info("TOTAL PAGE NUMBER: "+result.getTotalPages());
-		model.addAttribute("result",new PageMaker(result));
+		model.addAttribute("result",new PageMaker<>(result));
 	}
 	
 	@GetMapping("/register")
